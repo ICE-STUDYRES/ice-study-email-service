@@ -1,0 +1,152 @@
+name: Deploy Kafka Email Service
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Cache Gradle build outputs
+        uses: actions/cache@v3
+        with:
+          path: build
+          key: ${{ runner.os }}-gradle-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-build-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: |
+          ./gradlew clean --no-daemon
+          ./gradlew bootJar -x test --no-daemon
+
+      - name: Get GitHub Actions Runner IP
+        run: |
+          RUNNER_IP=$(curl -s ifconfig.me)
+          if [[ -z "$RUNNER_IP" ]]; then
+            echo "Error: Unable to retrieve GitHub Actions Runner IP."
+            exit 1
+          fi
+          echo "RUNNER_IP=$RUNNER_IP" >> $GITHUB_ENV
+          echo "GitHub Actions Runner IP: $RUNNER_IP"
+
+      - name: Add SSH IP to EC2 Security Group
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
+            --protocol tcp --port 22 --cidr $RUNNER_IP/32 \
+            --region ${{ secrets.AWS_REGION }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        continue-on-error: true
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          EC2_HOST=${{ secrets.EC2_HOST }}
+
+          # 메일 설정
+          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+          MAIL_HOST=smtp.gmail.com
+          MAIL_PORT=587
+          
+          # Spring Boot 설정
+          SPRING_PROFILES_ACTIVE=prod
+          SERVER_PORT=8080
+          LOGGING_LEVEL_ROOT=INFO
+          
+          # Kafka 설정
+          KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+          
+          # 타임존
+          TZ=Asia/Seoul
+          EOF
+
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: "${{ secrets.EC2_SSH_KEY }}"
+          source: ".env,docker-compose.yml,Dockerfile,build/libs/*.jar"
+          target: "/home/ubuntu/ice-study-email-service/"
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: "${{ secrets.EC2_SSH_KEY }}"
+          script: |
+            cd /home/ubuntu/ice-study-email-service
+            
+            # 기존 서비스 정지
+            echo "🛑 Stopping existing services..."
+            docker-compose down || true
+            
+            # Docker 리소스 정리
+            echo "🧹 Cleaning up Docker resources..."
+            docker system prune -f
+            
+            # 새로운 서비스 시작
+            echo "🚀 Starting Kafka Email Service..."
+            docker-compose up -d --build
+            
+            # 서비스 상태 확인
+            echo "⏳ Waiting for services to start..."
+            sleep 30
+            
+            echo "=== 📊 Service Status ==="
+            docker-compose ps
+            
+            # Kafka 토픽 확인
+            echo "=== 📋 Kafka Topics ==="
+            docker exec kafka kafka-topics --list --bootstrap-server localhost:9092 || echo "Kafka not ready yet"
+            
+            # 애플리케이션 로그 확인
+            echo "=== 📄 Application Logs ==="
+            docker-compose logs --tail=20 email-app
+            
+            # 헬스체크
+            echo "=== 🏥 Health Check ==="
+            curl -f http://localhost:8080/actuator/health || echo "Application starting..."
+
+      - name: Clean Up Docker Images
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: "${{ secrets.EC2_SSH_KEY }}"
+          script: |
+            echo "🧹 Cleaning up unused Docker images..."
+            docker image prune -af --filter "until=24h"
+
+      - name: Remove SSH IP from Security Group
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
+            --protocol tcp --port 22 --cidr $RUNNER_IP/32 \
+            --region ${{ secrets.AWS_REGION }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        continue-on-error: true
