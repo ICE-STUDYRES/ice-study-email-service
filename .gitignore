@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 .env
+ice-email-service.pem
 
 ### STS ###
 .apt_generated
