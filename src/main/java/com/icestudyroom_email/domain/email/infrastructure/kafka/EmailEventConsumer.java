@@ -1,6 +1,6 @@
 package com.icestudyroom_email.domain.email.infrastructure.kafka;
 
-import com.icestudyroom_email.domain.email.infrastructure.gmail.Implement.GmailService;
+import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
 import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
 import com.icestudyroom_email.domain.email.infrastructure.kafka.dto.VacancyNotificationRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EmailEventConsumer {
     private final static String reservationLink = "http://localhost:5173/reservation/room";
-    private final GmailService emailService;
+    private final EmailService emailService;
 
     @KafkaListener(topics = "vacancy-notifications", groupId = "email-service-group", containerFactory = "kafkaListenerContainerFactory")
     public void listenVacancyNotification(VacancyNotificationRequest notificationRequest) {
