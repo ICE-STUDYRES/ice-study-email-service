@@ -1,6 +1,5 @@
 package com.icestudyroom_email.domain.email.infrastructure.gmail.Implement;
 
-
 import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
 import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
 import jakarta.mail.MessagingException;
@@ -9,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -18,6 +18,7 @@ public class GmailService implements EmailService {
 
     private final JavaMailSender mailSender;
 
+    @Async("emailExecutor")
     public void sendEmail(EmailRequest emailRequest) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
