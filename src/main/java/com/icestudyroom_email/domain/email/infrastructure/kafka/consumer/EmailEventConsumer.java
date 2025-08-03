@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.email.infrastructure.kafka;
+package com.icestudyroom_email.domain.email.infrastructure.kafka.consumer;
 
 import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
 import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
@@ -19,10 +19,16 @@ public class EmailEventConsumer {
     public void listenVacancyNotification(VacancyNotificationRequest notificationRequest) {
         log.info("빈자리 알림 서비스 수행, 방 번호: {}", notificationRequest.getRoomName());
 
-        String emailBody = createEmailBody(notificationRequest);
-        EmailRequest emailRequest = new EmailRequest(notificationRequest.getEmail(), "[ICE-STUDYRES] 빈자리 알림", emailBody);
+        try {
+            String emailBody = createEmailBody(notificationRequest);
+            EmailRequest emailRequest = new EmailRequest(notificationRequest.getEmail(), "[ICE-STUDYRES] 빈자리 알림", emailBody);
 
-        emailService.sendEmail(emailRequest);
+            emailService.sendEmail(emailRequest);
+            log.info("이메일 발송 성공, 받는 사람: {}", notificationRequest.getEmail());
+        } catch (Exception e) {
+            log.error("이메일 발송 처리 중 에러 발생. 받는 사람: {}, 에러: {}", notificationRequest.getEmail(), e.getMessage());
+            throw e;
+        }
     }
 
     private String createEmailBody(VacancyNotificationRequest dto) {
