@@ -80,6 +80,25 @@ jobs:
           TZ=Asia/Seoul
           EOF
 
+      - name: Ensure target directory exists
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: "${{ secrets.EC2_SSH_KEY }}"
+          script: |
+            sudo mkdir -p /home/ubuntu/ice-study-email-service/
+            sudo chown ubuntu:ubuntu /home/ubuntu/ice-study-email-service/
+            chmod 755 /home/ubuntu/ice-study-email-service/
+
+      - name: Verify files before copy
+        run: |
+          echo "=== 파일 존재 확인 ==="
+          ls -la .env
+          ls -la docker-compose.yml
+          ls -la Dockerfile
+          ls -la build/libs/*.jar
+
       - name: Copy files to EC2
         uses: appleboy/scp-action@master
         with:
@@ -88,6 +107,10 @@ jobs:
           key: "${{ secrets.EC2_SSH_KEY }}"
           source: ".env,docker-compose.yml,Dockerfile,build/libs/*.jar"
           target: "/home/ubuntu/ice-study-email-service/"
+          timeout: 60s
+          command_timeout: 15m
+          strip_components: 0
+          rm: false
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -98,36 +121,90 @@ jobs:
           script: |
             cd /home/ubuntu/ice-study-email-service
             
-            # 기존 서비스 정지
-            echo "🛑 Stopping existing services..."
-            docker-compose down || true
+            echo "🔍 현재 Docker 상태 확인..."
+            docker ps -a
+            docker images
             
-            # Docker 리소스 정리
-            echo "🧹 Cleaning up Docker resources..."
-            docker system prune -f
+            # 1️⃣ 모든 실행 중인 컨테이너 강제 정지
+            echo "🛑 모든 컨테이너 강제 정지..."
+            docker stop $(docker ps -aq) 2>/dev/null || true
             
-            # 새로운 서비스 시작
-            echo "🚀 Starting Kafka Email Service..."
-            docker-compose up -d --build
+            # 2️⃣ 특정 컨테이너들 강제 제거
+            echo "🗑️ 기존 컨테이너들 강제 제거..."
+            docker rm -f zookeeper kafka email-app 2>/dev/null || true
+            
+            # 3️⃣ 사용하지 않는 이미지 제거
+            echo "🧹 사용하지 않는 이미지 제거..."
+            docker image prune -af
+            
+            # 4️⃣ 네트워크 정리
+            echo "🌐 Docker 네트워크 정리..."
+            docker network prune -f
+            
+            # 5️⃣ 볼륨 정리 (주의: 데이터 손실 가능)
+            echo "💾 사용하지 않는 볼륨 정리..."
+            docker volume prune -f
+            
+            # 6️⃣ 포트 사용 중인 프로세스 확인 및 종료
+            echo "🔌 포트 사용 확인..."
+            sudo lsof -ti:8080 | xargs sudo kill -9 2>/dev/null || true
+            sudo lsof -ti:9092 | xargs sudo kill -9 2>/dev/null || true
+            sudo lsof -ti:2181 | xargs sudo kill -9 2>/dev/null || true
+            
+            # 7️⃣ Docker 컴포즈 프로젝트별 정리
+            echo "📦 Docker Compose 프로젝트 정리..."
+            docker-compose down --volumes --remove-orphans 2>/dev/null || true
+            
+            # 8️⃣ 시스템 전체 Docker 정리
+            echo "🧽 시스템 전체 Docker 정리..."
+            docker system prune -af --volumes
+            
+            # 9️⃣ 잠시 대기 (시스템 안정화)
+            echo "⏱️ 시스템 안정화 대기..."
+            sleep 10
+            
+            # 🔟 새로운 서비스 시작
+            echo "🚀 새로운 서비스 시작..."
+            docker-compose up -d --build --force-recreate
             
             # 서비스 상태 확인
-            echo "⏳ Waiting for services to start..."
+            echo "⏳ 서비스 시작 대기..."
             sleep 30
             
             echo "=== 📊 Service Status ==="
             docker-compose ps
             
-            # Kafka 토픽 확인
-            echo "=== 📋 Kafka Topics ==="
-            docker exec kafka kafka-topics --list --bootstrap-server localhost:9092 || echo "Kafka not ready yet"
+            echo "=== 🔍 Container Logs ==="
+            docker-compose logs --tail=20
             
-            # 애플리케이션 로그 확인
-            echo "=== 📄 Application Logs ==="
-            docker-compose logs --tail=20 email-app
+            # Kafka 준비 상태 확인
+            echo "=== 📋 Kafka Health Check ==="
+            for i in {1..10}; do
+              if docker exec kafka kafka-topics --list --bootstrap-server localhost:9092 > /dev/null 2>&1; then
+                echo "✅ Kafka is ready!"
+                docker exec kafka kafka-topics --list --bootstrap-server localhost:9092
+                break
+              else
+                echo "⏳ Kafka 준비 중... ($i/10)"
+                sleep 10
+              fi
+            done
             
-            # 헬스체크
-            echo "=== 🏥 Health Check ==="
-            curl -f http://localhost:8080/actuator/health || echo "Application starting..."
+            # 애플리케이션 헬스체크
+            echo "=== 🏥 Application Health Check ==="
+            for i in {1..10}; do
+              if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+                echo "✅ Application is healthy!"
+                break
+              else
+                echo "⏳ Application 시작 중... ($i/10)"
+                sleep 10
+              fi
+            done
+            
+            echo "=== 🎯 Final Status ==="
+            docker ps
+            docker-compose ps
 
       - name: Clean Up Docker Images
         uses: appleboy/ssh-action@master
