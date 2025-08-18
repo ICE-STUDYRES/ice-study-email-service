@@ -80,40 +80,63 @@ jobs:
           TZ=Asia/Seoul
           EOF
 
-      - name: Debug SSH Connection and Permissions
+      - name: Emergency Disk Cleanup
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: "${{ secrets.EC2_SSH_KEY }}"
           script: |
-            echo "=== 시스템 정보 ==="
-            whoami
-            id
-            pwd
+            echo "🚨 현재 디스크 사용량"
             df -h
             
-            echo "=== SSH 키 권한 확인 ==="
-            ls -la ~/.ssh/
+            echo "🧹 Docker 완전 정리 (모든 데이터 삭제)"
+            docker stop $(docker ps -aq) 2>/dev/null || true
+            docker rm $(docker ps -aq) 2>/dev/null || true
+            docker rmi $(docker images -q) 2>/dev/null || true
+            docker system prune -af --volumes
+            docker volume rm $(docker volume ls -q) 2>/dev/null || true
             
-            echo "=== 홈 디렉토리 권한 확인 ==="
-            ls -la /home/
-            ls -la /home/ubuntu/
-            
-            echo "=== 디렉토리 생성 및 권한 설정 ==="
+            echo "🗑️ 기존 프로젝트 파일 삭제"
             sudo rm -rf /home/ubuntu/ice-study-email-service/
-            mkdir -p /home/ubuntu/ice-study-email-service/
-            chmod 755 /home/ubuntu/ice-study-email-service/
-            ls -la /home/ubuntu/ice-study-email-service/
             
-            echo "=== 디스크 공간 확인 ==="
-            df -h /home/ubuntu/
+            echo "📦 SCP 임시 파일들 삭제"
+            rm -f /home/ubuntu/*.tar.gz
             
-            echo "=== 테스트 파일 생성 ==="
-            echo "test" > /home/ubuntu/ice-study-email-service/test.txt
-            ls -la /home/ubuntu/ice-study-email-service/
+            echo "🧽 시스템 임시 파일 정리"
+            sudo rm -rf /tmp/*
+            sudo rm -rf /var/tmp/*
+            sudo find /var/log -name "*.log" -exec sudo truncate -s 0 {} \;
             
-            echo "=== 디버깅 완료 ==="
+            echo "📜 APT 캐시 정리"
+            sudo apt-get clean
+            sudo apt-get autoclean
+            sudo apt-get autoremove -y
+            
+            echo "🗂️ Journal 로그 정리"
+            sudo journalctl --vacuum-time=1d
+            sudo journalctl --vacuum-size=50M
+            
+            echo "🔍 대용량 파일 찾기 및 삭제"
+            sudo find /home -name "*.log" -size +10M -delete 2>/dev/null || true
+            sudo find /home -name "core.*" -delete 2>/dev/null || true
+            
+            echo "✅ 정리 완료 - 최종 디스크 상태"
+            df -h
+            
+            echo "📁 새 디렉토리 생성"
+            mkdir -p /home/ubuntu/ice-study-email-service/build/libs/
+            
+            echo "💾 사용 가능한 공간 확인"
+            AVAIL=$(df / | tail -1 | awk '{print $4}')
+            echo "사용 가능한 공간: ${AVAIL}KB"
+            
+            if [ "$AVAIL" -lt 1000000 ]; then
+              echo "❌ 여전히 공간 부족 (1GB 미만)"
+              exit 1
+            else
+              echo "✅ 충분한 공간 확보됨"
+            fi
 
       - name: Copy files via SSH (Safe Alternative)
         uses: appleboy/ssh-action@master
