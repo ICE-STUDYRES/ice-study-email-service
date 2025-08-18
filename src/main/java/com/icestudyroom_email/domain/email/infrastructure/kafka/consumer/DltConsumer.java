@@ -20,10 +20,10 @@ public class DltConsumer {
         @Header(KafkaHeaders.DLT_ORIGINAL_OFFSET) long originalOffset
     ) {
         log.error("[DLT] 최종 처리 실패 메시지 수신");
-        log.error("  - Original Topic: {}", originalTopic);
-        log.error("  - Original Offset: {}", originalOffset);
-        log.error("  - Exception: {}", exceptionMessage);
-        log.error("  - Failed Message Payload: {}", record.value());
-        log.error("  - Stacktrace: {}", stacktrace);
+        log.error("  - 토픽: {}", originalTopic);
+        log.error("  - 오프셋: {}", originalOffset);
+        log.error("  - 예외 메세지: {}", exceptionMessage);
+        log.error("  - 예외 본문: {}", record.value());
+        log.error("  - 스택 트레이스: {}", stacktrace);
     }
 }
