@@ -9,8 +9,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,10 +22,12 @@ public class EmailEventConsumer {
     private final static String reservationLink = "https://ice-studyroom.com";
     private final EmailService emailService;
 
-    private final Set<String> processedMessageIds = ConcurrentHashMap.newKeySet();
+    private final Map<String, Long> processedMessageIds = new ConcurrentHashMap<>();
     private static final int MAX_PROCESSED_IDS = 50000;
-    private final AtomicInteger messageCounter = new AtomicInteger(0);
 
+    private static final Duration CLEANUP_AFTER = Duration.ofHours(6);
+
+    private final AtomicInteger messageCounter = new AtomicInteger(0);
     private final AtomicInteger successCount = new AtomicInteger(0);
     private final AtomicInteger failureCount = new AtomicInteger(0);
     private final AtomicInteger duplicateCount = new AtomicInteger(0);
@@ -41,13 +44,16 @@ public class EmailEventConsumer {
 
         String idempotencyKey = generateIdempotencyKey(notificationRequest);
 
-        if (!processedMessageIds.add(idempotencyKey)) {
+        // 중복 메시지 체크
+        if (processedMessageIds.containsKey(idempotencyKey)) {
             duplicateCount.incrementAndGet();
             log.warn("[DUPLICATE] 중복 메시지 차단 - 키:{}", idempotencyKey);
-            logMonitoringStats();
             ack.acknowledge();
             return;
         }
+
+        // 멱등성 키 저장 (현재 시간과 함께)
+        processedMessageIds.put(idempotencyKey, System.currentTimeMillis());
 
         try {
             String subject = createEmailSubject(notificationRequest);
@@ -80,30 +86,54 @@ public class EmailEventConsumer {
 
         int currentCount = messageCounter.incrementAndGet();
 
-        // 100개마다 모니터링 로그 출력
+        // 100개마다 모니터링
         if (currentCount % 100 == 0) {
             logMonitoringStats();
         }
 
-        // 1000개마다 cleanup 체크
-        if (currentCount % 1000 == 0) {
-            cleanupIfNeeded();
+        // 500개마다 초간단 정리
+        if (currentCount % 500 == 0) {
+            cleanupOldKeys();
         }
     }
 
-    private void cleanupIfNeeded() {
-        if (processedMessageIds.size() > MAX_PROCESSED_IDS) {
-            // 절반 정리 (오래된 것부터)
-            int removeCount = processedMessageIds.size() / 2;
-            Iterator<String> iterator = processedMessageIds.iterator();
+    /**
+     * 저장된지 6시간 지난 키만 삭제
+     */
+    private void cleanupOldKeys() {
+        long currentTime = System.currentTimeMillis();
+        long expireTime = currentTime - CLEANUP_AFTER.toMillis();
 
-            for (int i = 0; i < removeCount && iterator.hasNext(); i++) {
-                iterator.next();
+        int removedCount = 0;
+        Iterator<Map.Entry<String, Long>> iterator = processedMessageIds.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<String, Long> entry = iterator.next();
+
+            // 저장 시간이 6시간 이전이면 삭제
+            if (entry.getValue() < expireTime) {
                 iterator.remove();
+                removedCount++;
             }
+        }
 
-            log.info("메모리 정리 완료 - 제거된 항목: {}, 남은 항목: {}",
-                    removeCount, processedMessageIds.size());
+        // 응급 상황: 메모리 사용량이 너무 많으면 강제 정리
+        if (processedMessageIds.size() > MAX_PROCESSED_IDS) {
+            int emergencyRemoveCount = processedMessageIds.size() - (MAX_PROCESSED_IDS / 2);
+
+            processedMessageIds.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue()) // 오래된 것부터
+                    .limit(emergencyRemoveCount)
+                    .map(Map.Entry::getKey)
+                    .forEach(processedMessageIds::remove);
+
+            removedCount += emergencyRemoveCount;
+            log.warn("[EMERGENCY_CLEANUP] 메모리 한계로 강제 정리: {}개", emergencyRemoveCount);
+        }
+
+        if (removedCount > 0) {
+            log.info("[CLEANUP] 6시간 경과 키 정리 완료 - 제거: {}개, 남은 키: {}개",
+                    removedCount, processedMessageIds.size());
         }
     }
 
@@ -156,23 +186,23 @@ public class EmailEventConsumer {
     private void logMonitoringStats() {
         int total = successCount.get() + failureCount.get() + duplicateCount.get();
         double successRate = total > 0 ? (double) successCount.get() / total * 100 : 0;
+        double duplicateRate = total > 0 ? (double) duplicateCount.get() / total * 100 : 0;
         long minutesSinceLastProcess = (System.currentTimeMillis() - lastProcessTime) / 60000;
 
-        log.info("[MONITOR] === 이메일 시스템 통계 ===");
+        log.info("[MONITOR] === 초간단 6시간 정리 이메일 시스템 ===");
         log.info("[MONITOR] 총 처리: {}건 | 성공: {}건 | 실패: {}건 | 중복: {}건",
                 total, successCount.get(), failureCount.get(), duplicateCount.get());
-        log.info("[MONITOR] 성공률: {:.2f}% | 메모리 사용: {}개 키 | 마지막 처리: {}분 전",
-                successRate, processedMessageIds.size(), minutesSinceLastProcess);
+        log.info("[MONITOR] 성공률: {:.2f}% | 중복률: {:.2f}% | 멱등성 키: {}개",
+                successRate, duplicateRate, processedMessageIds.size());
+        log.info("[MONITOR] 마지막 처리: {}분 전 | 정리 기준: {}시간 후",
+                minutesSinceLastProcess, CLEANUP_AFTER.toHours());
 
-        // 알림 레벨 판정
-        if (successRate < 95.0 && total > 10) {
-            log.error("[ALERT] 성공률 낮음! 현재: {:.2f}%", successRate);
+        // 간단한 알림
+        if (duplicateRate > 1.0 && total > 50) {
+            log.warn("[ALERT] 중복률 주의: {:.2f}%", duplicateRate);
         }
         if (processedMessageIds.size() > MAX_PROCESSED_IDS * 0.8) {
-            log.warn("[ALERT] 메모리 사용량 높음! 현재: {}개", processedMessageIds.size());
-        }
-        if (minutesSinceLastProcess > 30) {
-            log.warn("[ALERT] 오랫동안 메시지 없음! {}분 전", minutesSinceLastProcess);
+            log.warn("[ALERT] 메모리 사용량 높음: {}개", processedMessageIds.size());
         }
     }
 
