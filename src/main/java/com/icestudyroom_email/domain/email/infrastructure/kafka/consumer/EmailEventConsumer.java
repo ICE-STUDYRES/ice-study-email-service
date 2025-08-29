@@ -74,8 +74,6 @@ public class EmailEventConsumer {
 
         } catch (Exception e) {
             failureCount.incrementAndGet();
-            processedMessageIds.remove(idempotencyKey);
-
             log.error("[FAILURE] 이메일 발송 실패 - 스케줄:{}, 수신자:{}, 에러:{}",
                     notificationRequest.getScheduleId(),
                     maskEmail(notificationRequest.getEmail()),
