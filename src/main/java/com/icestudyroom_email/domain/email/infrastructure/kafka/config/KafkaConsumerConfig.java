@@ -18,9 +18,11 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.ExponentialBackOff;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+@Slf4j
 @Configuration
 @EnableKafka
 public class KafkaConsumerConfig {
@@ -47,14 +49,24 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
             ConsumerFactory<String, Object> consumerFactory) {
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
-                kafkaTemplate,
-                (record, ex) -> new TopicPartition(record.topic() + ".DLT", -1)
-        );
 
-        ExponentialBackOff backOff = new ExponentialBackOff(1000L, 2.0);
-        backOff.setMaxElapsedTime(10000L);
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
+        // 재시도 로직 비활성화 - 멱등성 키 방식 사용으로 인한 중복 방지 우선
+       /*
+       DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
+               kafkaTemplate,
+               (record, ex) -> new TopicPartition(record.topic() + ".DLT", -1)
+       );
+
+       ExponentialBackOff backOff = new ExponentialBackOff(1000L, 2.0);
+       backOff.setMaxElapsedTime(10000L);
+       DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
+       */
+
+        // 단순 로깅용 에러 핸들러 (재시도 없음)
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler((record, exception) -> {
+            log.error("[KAFKA_ERROR] 메시지 처리 중 예외 발생 - topic: {}, partition: {}, offset: {}, error: {}",
+                    record.topic(), record.partition(), record.offset(), exception.getMessage());
+        });
 
         errorHandler.addNotRetryableExceptions(
                 NullPointerException.class,
