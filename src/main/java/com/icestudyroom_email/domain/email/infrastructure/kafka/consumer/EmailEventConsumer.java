@@ -65,7 +65,6 @@ public class EmailEventConsumer {
             long endTime = System.currentTimeMillis();
 
             successCount.incrementAndGet();
-            ack.acknowledge();
 
             log.info("[SUCCESS] 이메일 발송 성공 - 스케줄:{}, 수신자:{}, 소요시간:{}ms",
                     notificationRequest.getScheduleId(),
@@ -78,20 +77,15 @@ public class EmailEventConsumer {
                     notificationRequest.getScheduleId(),
                     maskEmail(notificationRequest.getEmail()),
                     e.getMessage());
+        } finally {
+            ack.acknowledge();
+            int currentCount = messageCounter.incrementAndGet();
 
-            throw e;
-        }
+            // 100개마다 모니터링
+            if (currentCount % 100 == 0) logMonitoringStats();
 
-        int currentCount = messageCounter.incrementAndGet();
-
-        // 100개마다 모니터링
-        if (currentCount % 100 == 0) {
-            logMonitoringStats();
-        }
-
-        // 500개마다 초간단 정리
-        if (currentCount % 500 == 0) {
-            cleanupOldKeys();
+            // 500개마다 초간단 정리
+            if (currentCount % 500 == 0) cleanupOldKeys();
         }
     }
 
