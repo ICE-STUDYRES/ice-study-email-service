@@ -3,6 +3,7 @@ package com.icestudyroom_email.domain.email.infrastructure.kafka.consumer;
 import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
 import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
 import com.icestudyroom_email.domain.email.infrastructure.kafka.dto.VacancyNotificationRequest;
+import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class EmailEventConsumer {
     private final static String reservationLink = "https://ice-studyroom.com";
     private final EmailService emailService;
+    private final Retry emailRetry;
 
     private final Map<String, Long> processedMessageIds = new ConcurrentHashMap<>();
     private static final int MAX_PROCESSED_IDS = 50000;
@@ -56,14 +58,20 @@ public class EmailEventConsumer {
         processedMessageIds.put(idempotencyKey, System.currentTimeMillis());
 
         try {
-            String subject = createEmailSubject(notificationRequest);
-            String emailBody = createEmailBody(notificationRequest);
-            EmailRequest emailRequest = new EmailRequest(notificationRequest.getEmail(), subject, emailBody);
-
             long startTime = System.currentTimeMillis();
-            emailService.sendEmail(emailRequest);
-            long endTime = System.currentTimeMillis();
 
+            Retry.decorateRunnable(emailRetry, () -> {
+                String subject = createEmailSubject(notificationRequest);
+                String emailBody = createEmailBody(notificationRequest);
+                EmailRequest emailRequest = new EmailRequest(
+                        notificationRequest.getEmail(),
+                        subject,
+                        emailBody
+                );
+                emailService.sendEmail(emailRequest);
+            }).run();
+
+            long endTime = System.currentTimeMillis();
             successCount.incrementAndGet();
 
             log.info("[SUCCESS] 이메일 발송 성공 - 스케줄:{}, 수신자:{}, 소요시간:{}ms",
@@ -77,6 +85,8 @@ public class EmailEventConsumer {
                     notificationRequest.getScheduleId(),
                     maskEmail(notificationRequest.getEmail()),
                     e.getMessage());
+
+            processedMessageIds.remove(idempotencyKey);
         } finally {
             ack.acknowledge();
             int currentCount = messageCounter.incrementAndGet();
