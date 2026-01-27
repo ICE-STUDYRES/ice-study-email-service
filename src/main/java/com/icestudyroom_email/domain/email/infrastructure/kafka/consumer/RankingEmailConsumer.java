@@ -37,8 +37,13 @@ public class RankingEmailConsumer {
             return;
         }
 
+        log.info("[Kafka] 이메일 이벤트 수신 - eventType={}, email={}",
+                event.eventType(), event.email());
+
         EmailRequest emailRequest = templateResolver.resolve(event);
+        log.info("[Kafka] 이메일 발송 요청 시작");
         emailService.sendEmail(emailRequest);
+        log.info("[Kafka] 이메일 발송 요청 종료");
 
         ack.acknowledge();
     }
