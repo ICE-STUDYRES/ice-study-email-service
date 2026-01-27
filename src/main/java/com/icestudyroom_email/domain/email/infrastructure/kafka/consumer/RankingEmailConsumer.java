@@ -1,0 +1,45 @@
+package com.icestudyroom_email.domain.email.infrastructure.kafka.consumer;
+
+import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
+import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
+import com.icestudyroom_email.domain.email.infrastructure.idempotency.EmailIdempotencyService;
+import com.icestudyroom_email.domain.email.infrastructure.kafka.dto.ranking.RankingEmailTemplateResolver;
+import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class RankingEmailConsumer {
+
+    private final EmailService emailService;
+    private final RankingEmailTemplateResolver templateResolver;
+    private final EmailIdempotencyService idempotencyService;
+
+    @KafkaListener(
+            topics = "RANKING_EMAIL_EVENT",
+            groupId = "email-group",
+            containerFactory = "rankingKafkaListenerContainerFactory"
+    )
+    public void consume(RankingEmailEvent event, Acknowledgment ack) {
+
+        String checkDuplicatedkey = "email:sent:" + event.eventId();
+
+        if (!idempotencyService.isFirst(checkDuplicatedkey, Duration.ofDays(7))) {
+            log.info("Duplicate email ignored. eventId={}", event.eventId());
+            ack.acknowledge();
+            return;
+        }
+
+        EmailRequest emailRequest = templateResolver.resolve(event);
+        emailService.sendEmail(emailRequest);
+
+        ack.acknowledge();
+    }
+}
