@@ -3,7 +3,7 @@ package com.icestudyroom_email.domain.email.infrastructure.kafka.consumer;
 import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
 import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
 import com.icestudyroom_email.domain.email.infrastructure.idempotency.EmailIdempotencyService;
-import com.icestudyroom_email.domain.email.infrastructure.kafka.dto.ranking.RankingEmailTemplateResolver;
+import com.icestudyroom_email.domain.email.infrastructure.template.RankingEmailTemplateResolver;
 import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
