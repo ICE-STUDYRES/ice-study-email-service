@@ -1,4 +1,6 @@
-package com.icestudyroom_email.domain.rankingContract;
+package com.icestudyroom_email.domain.rankingContract.email;
+
+import com.icestudyroom_email.domain.rankingContract.RankingEventType;
 
 public record RankingEmailEvent(
 
