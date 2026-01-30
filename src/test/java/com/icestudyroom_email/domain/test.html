@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Weekly Ranking Socket Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4/dist/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin: 6px 0;
+        }
+        .connected {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h2>📡 Weekly Ranking Socket Test</h2>
+<div id="status">⏳ connecting...</div>
+
+<ul id="ranking"></ul>
+
+<script>
+    console.log("HTML loaded");
+
+    const statusEl = document.getElementById("status");
+    const rankingEl = document.getElementById("ranking");
+
+    const socket = io("http://localhost:3001/ranking", {
+        transports: ["websocket"]
+    });
+
+    socket.on("connect", () => {
+        console.log("connected:", socket.id);
+        statusEl.textContent = "✅ connected";
+        statusEl.className = "connected";
+
+        // weekly room 입장
+        socket.emit("join", "weekly");
+    });
+
+    socket.on("weekly-ranking-update", (data) => {
+        console.log("📡 weekly ranking update:", data);
+
+        // 기존 목록 초기화
+        rankingEl.innerHTML = "";
+
+        if (!data || data.length === 0) {
+            rankingEl.innerHTML = "<li>랭킹 데이터가 없습니다</li>";
+            return;
+        }
+
+        data.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = `🏅 ${item.rank}위 | ${item.memberName}`;
+            rankingEl.appendChild(li);
+        });
+    });
+
+    socket.on("disconnect", () => {
+        statusEl.textContent = "❌ disconnected";
+        statusEl.className = "";
+    });
+</script>
+
+</body>
+</html>
