@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.config;
+package com.icestudyroom_email.domain.email.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
