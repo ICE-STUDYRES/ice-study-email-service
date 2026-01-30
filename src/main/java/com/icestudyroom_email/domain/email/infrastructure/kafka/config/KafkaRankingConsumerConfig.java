@@ -1,7 +1,8 @@
 package com.icestudyroom_email.domain.email.infrastructure.kafka.config;
 
-import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
+import com.icestudyroom_email.domain.rankingContract.email.RankingEmailEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,11 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.Map;
 
 @Configuration
+@ConditionalOnProperty(
+        name = "feature.kafka.enabled",
+        havingValue = "true",
+        matchIfMissing = false
+)
 public class KafkaRankingConsumerConfig {
 
     @Bean
