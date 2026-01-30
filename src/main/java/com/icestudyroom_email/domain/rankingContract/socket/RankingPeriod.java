@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum RankingPeriod {
 
-    WEEKLY("ranking:weekly", 10),
+    WEEKLY("ranking:weekly", 5),
     MONTHLY("ranking:monthly", 10), // 확장성 고려
     DAILY("ranking:daily", 10); // 확장성 고려
 
