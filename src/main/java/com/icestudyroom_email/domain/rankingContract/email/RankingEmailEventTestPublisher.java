@@ -1,6 +1,5 @@
-package com.icestudyroom_email.domain.rankingEmail;
+package com.icestudyroom_email.domain.rankingContract.email;
 
-import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
 import com.icestudyroom_email.domain.rankingContract.RankingEventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,11 +9,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RankingEmailEventTestPublisher {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, RankingEmailEvent> kafkaTemplate;
 
     public void publishTop5EnterEvent() {
         RankingEmailEvent event = new RankingEmailEvent(
-                "123",
+                "121235",
                 RankingEventType.TOP5_ENTER,
                 "테스트 유저 박다영",
                 "forTestRanking@gmail.com",

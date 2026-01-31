@@ -6,6 +6,7 @@ import com.icestudyroom_email.domain.email.infrastructure.kafka.dto.VacancyNotif
 import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Profile("kafka")
 public class EmailEventConsumer {
     private final static String reservationLink = "https://ice-studyroom.com";
     private final EmailService emailService;
