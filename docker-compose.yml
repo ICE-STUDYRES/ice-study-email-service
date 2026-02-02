@@ -8,6 +8,9 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
+    volumes:
+        - zookeeper-data:/var/lib/zookeeper/data
+
   kafka:
     image: confluentinc/cp-kafka:7.4.0
     container_name: kafka
@@ -21,7 +24,8 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
+    volumes:
+      - kafka-data:/var/lib/kafka/data
 
   email-app:
     build:
