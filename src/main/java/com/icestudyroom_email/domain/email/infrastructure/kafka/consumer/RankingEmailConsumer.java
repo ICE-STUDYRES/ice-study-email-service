@@ -33,20 +33,26 @@ public class RankingEmailConsumer {
 
         String checkDuplicatedkey = "email:sent:" + event.eventId();
 
-        if (!idempotencyService.isFirst(checkDuplicatedkey, Duration.ofDays(7))) {
-            log.info("Duplicate email ignored. eventId={}", event.eventId());
+        try {
+            if (!idempotencyService.isFirst(checkDuplicatedkey, Duration.ofDays(7))) {
+                log.info("Duplicate email ignored. eventId={}", event.eventId());
+                ack.acknowledge();
+                return;
+            }
+
+            log.info("[Kafka] 이메일 이벤트 수신 - eventType={}, email={}",
+                    event.eventType(), event.email());
+
+            EmailRequest emailRequest = templateResolver.resolve(event);
+            log.info("[Kafka] 이메일 발송 요청 시작");
+            emailService.sendEmail(emailRequest);
+            log.info("[Kafka] 이메일 발송 요청 종료");
+
+        } catch (Exception e) {
+            log.error("이메일 발송 처리 중 예외 발생. eventId={}", event.eventId(), e);
+
+        } finally {
             ack.acknowledge();
-            return;
         }
-
-        log.info("[Kafka] 이메일 이벤트 수신 - eventType={}, email={}",
-                event.eventType(), event.email());
-
-        EmailRequest emailRequest = templateResolver.resolve(event);
-        log.info("[Kafka] 이메일 발송 요청 시작");
-        emailService.sendEmail(emailRequest);
-        log.info("[Kafka] 이메일 발송 요청 종료");
-
-        ack.acknowledge();
     }
 }
