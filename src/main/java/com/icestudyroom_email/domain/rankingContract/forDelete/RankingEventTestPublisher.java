@@ -1,13 +1,16 @@
-package com.icestudyroom_email.domain.rankingContract.email;
+package com.icestudyroom_email.domain.rankingContract.forDelete;
 
+import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
 import com.icestudyroom_email.domain.rankingContract.RankingEventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
-public class RankingEmailEventTestPublisher {
+public class RankingEventTestPublisher {
 
     private final KafkaTemplate<String, RankingEmailEvent> kafkaTemplate;
 
@@ -15,6 +18,7 @@ public class RankingEmailEventTestPublisher {
         RankingEmailEvent event = new RankingEmailEvent(
                 "121235",
                 RankingEventType.TOP5_ENTER,
+                1L,
                 "테스트 유저 박다영",
                 "forTestRanking@gmail.com",
                 5,
@@ -25,4 +29,21 @@ public class RankingEmailEventTestPublisher {
         kafkaTemplate.send("RANKING_EMAIL_EVENT", event);
 
     }
+
+    public void publishPersonalNotificationEvent(Long memberId) {
+
+        RankingEmailEvent event = new RankingEmailEvent(
+                UUID.randomUUID().toString(),
+                RankingEventType.TOP5_RANK_CHANGED,
+                memberId,
+                "test-user",
+                "test@test.com",
+                3,
+                5,
+                2
+        );
+
+        kafkaTemplate.send("RANKING_EMAIL_EVENT", event);
+    }
+
 }

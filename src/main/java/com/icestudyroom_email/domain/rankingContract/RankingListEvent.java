@@ -1,9 +1,8 @@
-package com.icestudyroom_email.domain.rankingContract.socket;
+package com.icestudyroom_email.domain.rankingContract;
 
 import java.util.List;
 
 public record RankingListEvent(
-        RankingPeriod period,
         List<WeeklyRankingDto> rankings
 ) {}
 

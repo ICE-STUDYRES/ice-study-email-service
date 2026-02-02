@@ -1,5 +1,6 @@
-package com.icestudyroom_email.domain.rankingContract.socket;
+package com.icestudyroom_email.domain.rankingContract.forDelete;
 
+import com.icestudyroom_email.domain.rankingContract.WeeklyRankingDto;
 import com.icestudyroom_email.domain.socket.infrastructure.protocol.ranking.RankingSocketEvent;
 import com.icestudyroom_email.domain.socket.infrastructure.ranking.SocketRankingBroadcaster;
 import lombok.RequiredArgsConstructor;
