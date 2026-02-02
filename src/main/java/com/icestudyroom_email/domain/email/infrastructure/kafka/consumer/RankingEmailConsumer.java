@@ -7,6 +7,7 @@ import com.icestudyroom_email.domain.email.infrastructure.template.RankingEmailT
 import com.icestudyroom_email.domain.rankingContract.email.RankingEmailEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -17,7 +18,11 @@ import java.time.Duration;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("kafka")
+@ConditionalOnProperty(
+        name = "feature.kafka.enabled",
+        havingValue = "true",
+        matchIfMissing = false
+)
 public class RankingEmailConsumer {
 
     private final EmailService emailService;
