@@ -30,7 +30,7 @@ public class RankingQueryService {
                     lettuce.getDatabase());
         }
 
-        Set<ZSetOperations.TypedTuple<String>> tuples =
+        Set<ZSetOperations.TypedTuple<String>> rankingItems =
                 redisTemplate.opsForZSet()
                         .reverseRangeWithScores(
                                 period.getRedisKey(),
@@ -38,18 +38,18 @@ public class RankingQueryService {
                                 period.getLimit() - 1
                         );
 
-        if (tuples == null || tuples.isEmpty()) {
+        if (rankingItems == null || rankingItems.isEmpty()) {
             log.info("[RedisDebug] key={}, EMPTY", period.getRedisKey());
             return Set.of();
         }
 
-        tuples.forEach(t ->
+        rankingItems.forEach(t ->
                 log.info("[RedisDebug] member={}, score={}",
                         t.getValue(),
                         t.getScore())
         );
 
-        return tuples;
+        return rankingItems;
     }
 
 }
