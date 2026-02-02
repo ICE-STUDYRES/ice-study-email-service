@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.email.infrastructure.kafka.config;
+package com.icestudyroom_email.domain.common.kafka.config;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
