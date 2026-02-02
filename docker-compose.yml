@@ -40,7 +40,7 @@ services:
       - kafka
       - redis
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     env_file:
       - .env
     volumes:
