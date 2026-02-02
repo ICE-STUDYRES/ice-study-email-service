@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.email.infrastructure.idempotency;
+package com.icestudyroom_email.domain.common.redis.idempotency;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -8,7 +8,7 @@ import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
-public class EmailIdempotencyService {
+public class RedisIdempotencyService {
 
     private final StringRedisTemplate redisTemplate;
 
