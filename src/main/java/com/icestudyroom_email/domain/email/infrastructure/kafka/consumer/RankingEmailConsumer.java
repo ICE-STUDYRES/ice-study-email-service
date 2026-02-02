@@ -2,13 +2,12 @@ package com.icestudyroom_email.domain.email.infrastructure.kafka.consumer;
 
 import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
 import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
-import com.icestudyroom_email.domain.email.infrastructure.idempotency.EmailIdempotencyService;
+import com.icestudyroom_email.domain.common.redis.idempotency.RedisIdempotencyService;
 import com.icestudyroom_email.domain.email.infrastructure.template.RankingEmailTemplateResolver;
-import com.icestudyroom_email.domain.rankingContract.email.RankingEmailEvent;
+import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -27,7 +26,7 @@ public class RankingEmailConsumer {
 
     private final EmailService emailService;
     private final RankingEmailTemplateResolver templateResolver;
-    private final EmailIdempotencyService idempotencyService;
+    private final RedisIdempotencyService idempotencyService;
 
     @KafkaListener(
             topics = "RANKING_EMAIL_EVENT",

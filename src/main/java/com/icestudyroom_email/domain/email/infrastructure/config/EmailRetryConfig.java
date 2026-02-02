@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.email.infrastructure.kafka.config;
+package com.icestudyroom_email.domain.email.infrastructure.config;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;

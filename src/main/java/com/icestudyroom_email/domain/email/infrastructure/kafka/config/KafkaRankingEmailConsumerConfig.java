@@ -1,6 +1,6 @@
 package com.icestudyroom_email.domain.email.infrastructure.kafka.config;
 
-import com.icestudyroom_email.domain.rankingContract.email.RankingEmailEvent;
+import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -19,7 +19,7 @@ import java.util.Map;
         havingValue = "true",
         matchIfMissing = false
 )
-public class KafkaRankingConsumerConfig {
+public class KafkaRankingEmailConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, RankingEmailEvent> rankingConsumerFactory
