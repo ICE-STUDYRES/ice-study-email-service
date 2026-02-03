@@ -1,6 +1,6 @@
 package com.icestudyroom_email.domain.socket.infrastructure.ranking;
 
-import com.icestudyroom_email.domain.rankingContract.socket.RankingPeriod;
+import com.icestudyroom_email.domain.rankingContract.RankingPeriod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

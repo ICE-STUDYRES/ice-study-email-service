@@ -22,6 +22,12 @@
             color: green;
             font-weight: bold;
         }
+        .personal {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+        }
     </style>
 </head>
 <body>
@@ -31,11 +37,19 @@
 
 <ul id="ranking"></ul>
 
+<div class="personal">
+    <h3>🔔 개인 알림</h3>
+    <ul id="personal"></ul>
+</div>
+
 <script>
     console.log("HTML loaded");
 
+    const memberId = 6; // ⚠️ 서버에서 보내는 memberId와 반드시 일치해야 함
+
     const statusEl = document.getElementById("status");
     const rankingEl = document.getElementById("ranking");
+    const personalEl = document.getElementById("personal");
 
     const socket = io("http://localhost:3001/ranking", {
         transports: ["websocket"]
@@ -46,14 +60,17 @@
         statusEl.textContent = "✅ connected";
         statusEl.className = "connected";
 
-        // weekly room 입장
+        // ✅ 기존 기능 유지
         socket.emit("join", "weekly");
+
+        // ✅ 개인 알림용 room
+        socket.emit("join", `member:${memberId}`);
     });
 
+    // ✅ 기존 리스트 실시간 갱신 (절대 수정 ❌)
     socket.on("weekly-ranking-update", (data) => {
         console.log("📡 weekly ranking update:", data);
 
-        // 기존 목록 초기화
         rankingEl.innerHTML = "";
 
         if (!data || data.length === 0) {
@@ -66,6 +83,15 @@
             li.textContent = `🏅 ${item.rank}위 | ${item.memberName}`;
             rankingEl.appendChild(li);
         });
+    });
+
+    // ✅ 개인 알림 (신규 추가)
+    socket.on("personal-notification", (data) => {
+        console.log("🔔 personal notification:", data);
+
+        const li = document.createElement("li");
+        li.textContent = `📌 ${data.type}`;
+        personalEl.prepend(li); // 최신 알림 위로
     });
 
     socket.on("disconnect", () => {

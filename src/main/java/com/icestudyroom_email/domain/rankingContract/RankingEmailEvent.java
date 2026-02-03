@@ -1,11 +1,10 @@
-package com.icestudyroom_email.domain.rankingContract.email;
-
-import com.icestudyroom_email.domain.rankingContract.RankingEventType;
+package com.icestudyroom_email.domain.rankingContract;
 
 public record RankingEmailEvent(
 
         String eventId,
         RankingEventType eventType,
+        Long memberId,
         String name,
         String email,
         int currentRank,
