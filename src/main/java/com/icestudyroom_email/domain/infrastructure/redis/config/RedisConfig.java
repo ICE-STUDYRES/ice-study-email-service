@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.common.redis.config;
+package com.icestudyroom_email.domain.infrastructure.redis.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

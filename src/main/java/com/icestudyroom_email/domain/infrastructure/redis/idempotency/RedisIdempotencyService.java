@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.common.redis.idempotency;
+package com.icestudyroom_email.domain.infrastructure.redis.idempotency;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
