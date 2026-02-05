@@ -1,7 +1,7 @@
-package com.icestudyroom_email.domain.socket.infrastructure.ranking;
+package com.icestudyroom_email.domain.infrastructure.socket.broadcaster;
 
 import com.corundumstudio.socketio.SocketIOServer;
-import com.icestudyroom_email.domain.socket.infrastructure.protocol.SocketEvent;
+import com.icestudyroom_email.domain.infrastructure.socket.protocol.SocketEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
-package com.icestudyroom_email.domain.socket.infrastructure.config;
+package com.icestudyroom_email.domain.infrastructure.socket.config;
 
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.icestudyroom_email.domain.socket.infrastructure.handler.SocketRoomEventHandler;
+import com.icestudyroom_email.domain.infrastructure.socket.handler.SocketRoomEventHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 

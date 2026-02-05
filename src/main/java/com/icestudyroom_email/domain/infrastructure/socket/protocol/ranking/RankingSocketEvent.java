@@ -1,6 +1,6 @@
-package com.icestudyroom_email.domain.socket.infrastructure.protocol.ranking;
+package com.icestudyroom_email.domain.infrastructure.socket.protocol.ranking;
 
-import com.icestudyroom_email.domain.socket.infrastructure.protocol.SocketEvent;
+import com.icestudyroom_email.domain.infrastructure.socket.protocol.SocketEvent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

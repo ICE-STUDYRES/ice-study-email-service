@@ -1,7 +1,6 @@
-package com.icestudyroom_email.domain.socket.infrastructure.handler;
+package com.icestudyroom_email.domain.infrastructure.socket.handler;
 
 import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.annotation.OnEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.socket.infrastructure.protocol;
+package com.icestudyroom_email.domain.infrastructure.socket.protocol;
 
 public interface SocketEvent {
 

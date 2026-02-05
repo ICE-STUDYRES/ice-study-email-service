@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.socket.infrastructure.config;
+package com.icestudyroom_email.domain.infrastructure.socket.config;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import lombok.RequiredArgsConstructor;
