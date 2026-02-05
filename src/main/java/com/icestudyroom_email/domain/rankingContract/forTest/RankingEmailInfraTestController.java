@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.rankingContract.forDelete;
+package com.icestudyroom_email.domain.rankingContract.forTest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;

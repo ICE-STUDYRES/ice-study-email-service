@@ -1,7 +1,7 @@
-package com.icestudyroom_email.domain.rankingContract.forDelete;
+package com.icestudyroom_email.domain.rankingContract.forTest;
 
-import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
-import com.icestudyroom_email.domain.rankingContract.RankingEventType;
+import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
+import com.icestudyroom_email.domain.contract.ranking.RankingEventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
