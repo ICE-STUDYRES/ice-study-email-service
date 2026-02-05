@@ -1,8 +1,8 @@
 package com.icestudyroom_email.domain.rankingContract.forTest;
 
 import com.icestudyroom_email.domain.contract.ranking.WeeklyRankingDto;
-import com.icestudyroom_email.domain.socket.infrastructure.protocol.ranking.RankingSocketEvent;
-import com.icestudyroom_email.domain.socket.infrastructure.ranking.SocketRankingBroadcaster;
+import com.icestudyroom_email.domain.infrastructure.socket.protocol.ranking.RankingSocketEvent;
+import com.icestudyroom_email.domain.infrastructure.socket.broadcaster.SocketRankingBroadcaster;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
