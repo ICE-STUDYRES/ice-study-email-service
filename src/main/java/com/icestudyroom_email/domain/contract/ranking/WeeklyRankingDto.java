@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.rankingContract;
+package com.icestudyroom_email.domain.contract.ranking;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

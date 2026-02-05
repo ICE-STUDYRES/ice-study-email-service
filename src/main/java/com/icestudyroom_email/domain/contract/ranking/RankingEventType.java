@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.rankingContract;
+package com.icestudyroom_email.domain.contract.ranking;
 
 public enum RankingEventType {
     TOP5_ENTER,
