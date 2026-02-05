@@ -1,8 +1,9 @@
-package com.icestudyroom_email.domain.socket.infrastructure.ranking;
+package com.icestudyroom_email.domain.application.socket;
 
-import com.icestudyroom_email.domain.rankingContract.RankingListEvent;
-import com.icestudyroom_email.domain.rankingContract.WeeklyRankingDto;
-import com.icestudyroom_email.domain.socket.infrastructure.protocol.ranking.RankingSocketEvent;
+import com.icestudyroom_email.domain.contract.ranking.RankingListEvent;
+import com.icestudyroom_email.domain.contract.ranking.WeeklyRankingDto;
+import com.icestudyroom_email.domain.infrastructure.socket.protocol.ranking.RankingSocketEvent;
+import com.icestudyroom_email.domain.infrastructure.socket.broadcaster.SocketRankingBroadcaster;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

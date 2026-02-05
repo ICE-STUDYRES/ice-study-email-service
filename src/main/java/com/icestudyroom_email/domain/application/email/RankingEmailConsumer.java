@@ -1,10 +1,10 @@
-package com.icestudyroom_email.domain.email.infrastructure.kafka.consumer;
+package com.icestudyroom_email.domain.application.email;
 
-import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
-import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
-import com.icestudyroom_email.domain.common.redis.idempotency.RedisIdempotencyService;
-import com.icestudyroom_email.domain.email.infrastructure.template.RankingEmailTemplateResolver;
-import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
+import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailService;
+import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailRequest;
+import com.icestudyroom_email.domain.infrastructure.redis.idempotency.RedisIdempotencyService;
+import com.icestudyroom_email.domain.infrastructure.email.template.RankingEmailTemplateResolver;
+import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

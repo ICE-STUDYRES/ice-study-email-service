@@ -1,8 +1,8 @@
-package com.icestudyroom_email.domain.email.infrastructure.kafka.consumer;
+package com.icestudyroom_email.domain.application.email;
 
-import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
-import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
-import com.icestudyroom_email.domain.email.infrastructure.kafka.dto.VacancyNotificationRequest;
+import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailService;
+import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailRequest;
+import com.icestudyroom_email.domain.infrastructure.kafka.dto.VacancyNotificationRequest;
 import io.github.resilience4j.retry.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

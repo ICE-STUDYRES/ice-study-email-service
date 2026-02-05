@@ -1,8 +1,8 @@
-package com.icestudyroom_email.domain.socket.infrastructure.kafka.consumer;
+package com.icestudyroom_email.domain.application.socket;
 
-import com.icestudyroom_email.domain.common.redis.idempotency.RedisIdempotencyService;
-import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
-import com.icestudyroom_email.domain.socket.infrastructure.ranking.PersonalNotificationBroadcaster;
+import com.icestudyroom_email.domain.infrastructure.redis.idempotency.RedisIdempotencyService;
+import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
+import com.icestudyroom_email.domain.infrastructure.socket.broadcaster.PersonalNotificationBroadcaster;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
