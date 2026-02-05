@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.email.infrastructure.kafka.monitoring;
+package com.icestudyroom_email.domain.monitoring;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
