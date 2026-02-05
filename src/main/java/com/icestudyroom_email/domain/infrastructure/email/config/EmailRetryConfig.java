@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.email.infrastructure.config;
+package com.icestudyroom_email.domain.infrastructure.email.config;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;

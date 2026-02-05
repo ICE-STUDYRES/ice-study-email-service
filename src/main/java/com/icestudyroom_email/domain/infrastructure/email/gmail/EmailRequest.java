@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.email.infrastructure.gmail.dto;
+package com.icestudyroom_email.domain.infrastructure.email.gmail;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

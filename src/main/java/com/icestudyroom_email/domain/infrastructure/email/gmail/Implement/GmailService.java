@@ -1,7 +1,7 @@
-package com.icestudyroom_email.domain.email.infrastructure.gmail.Implement;
+package com.icestudyroom_email.domain.infrastructure.email.gmail.Implement;
 
-import com.icestudyroom_email.domain.email.infrastructure.gmail.EmailService;
-import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
+import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailService;
+import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

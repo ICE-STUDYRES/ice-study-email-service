@@ -1,8 +1,8 @@
-package com.icestudyroom_email.domain.email.infrastructure.template;
+package com.icestudyroom_email.domain.infrastructure.email.template;
 
-import com.icestudyroom_email.domain.email.infrastructure.gmail.dto.EmailRequest;
-import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
-import com.icestudyroom_email.domain.rankingContract.RankingEventType;
+import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailRequest;
+import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
+import com.icestudyroom_email.domain.contract.ranking.RankingEventType;
 import org.springframework.stereotype.Component;
 
 @Component
