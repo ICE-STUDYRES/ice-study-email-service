@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.email.infrastructure.kafka.dto;
+package com.icestudyroom_email.domain.infrastructure.kafka.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
