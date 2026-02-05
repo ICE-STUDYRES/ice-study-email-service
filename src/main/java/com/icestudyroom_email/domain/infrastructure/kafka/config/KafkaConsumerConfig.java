@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.common.kafka.config;
+package com.icestudyroom_email.domain.infrastructure.kafka.config;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -43,7 +43,7 @@ public class KafkaConsumerConfig {
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE,
-                "com.icestudyroom_email.domain.email.infrastructure.kafka.dto.VacancyNotificationRequest");
+                "com.icestudyroom_email.domain.infrastructure.kafka.dto.VacancyNotificationRequest");
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
         return new DefaultKafkaConsumerFactory<>(props);

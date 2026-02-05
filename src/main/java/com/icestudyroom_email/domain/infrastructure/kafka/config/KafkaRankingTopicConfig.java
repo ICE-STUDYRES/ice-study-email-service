@@ -1,4 +1,4 @@
-package com.icestudyroom_email.domain.common.kafka.config;
+package com.icestudyroom_email.domain.infrastructure.kafka.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

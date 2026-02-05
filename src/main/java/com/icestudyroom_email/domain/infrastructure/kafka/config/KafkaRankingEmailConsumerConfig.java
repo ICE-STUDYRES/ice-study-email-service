@@ -1,6 +1,6 @@
-package com.icestudyroom_email.domain.email.infrastructure.kafka.config;
+package com.icestudyroom_email.domain.infrastructure.kafka.config;
 
-import com.icestudyroom_email.domain.rankingContract.RankingEmailEvent;
+import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
