@@ -1,0 +1,26 @@
+package com.icestudyroom_email.domain.infrastructure.email.template;
+
+import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailRequest;
+import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class RankingEmailTemplateResolver {
+
+    private final List<RankingEmailTemplate> templates;
+
+    public EmailRequest resolve(RankingEmailEvent event) {
+        return templates.stream()
+                .filter(t -> t.supports() == event.eventType())
+                .findFirst()
+                .orElseThrow( () ->
+                        new IllegalArgumentException("지원하지 않는 이벤트 타입:" + event.eventType()
+                        )
+                ).create(event);
+    }
+
+}
