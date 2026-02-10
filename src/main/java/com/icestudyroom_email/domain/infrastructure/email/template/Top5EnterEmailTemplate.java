@@ -10,7 +10,7 @@ public class Top5EnterEmailTemplate implements RankingEmailTemplate {
 
     @Override
     public RankingEventType supports() {
-        return RankingEventType.TOP5_ENTER;
+        return RankingEventType.TOP6_10_RANK_CHANGED;
     }
 
     @Override
