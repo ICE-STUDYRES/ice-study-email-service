@@ -17,7 +17,7 @@ public class RankingEventTestPublisher {
     public void publishTop5EnterEvent() {
         RankingEmailEvent event = new RankingEmailEvent(
                 "121235",
-                RankingEventType.TOP5_ENTER,
+                RankingEventType.TOP6_10_RANK_CHANGED,
                 1L,
                 "테스트 유저 박다영",
                 "forTestRanking@gmail.com",
