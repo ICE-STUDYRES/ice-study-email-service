@@ -30,4 +30,19 @@ public class SocketRankingBroadcaster {
 
         roomOps.sendEvent(event.getEvent(), payload);
     }
+
+    public void broadcastToAll(String eventName, Object payload) {
+
+        var namespace = socketIOServer.getNamespace(NAMESPACE);
+        var broadcastOps = namespace.getBroadcastOperations();
+
+        log.info(
+                "[SocketBroadcast-All] namespace={}, event={}, payload={}",
+                NAMESPACE,
+                eventName,
+                payload
+        );
+
+        broadcastOps.sendEvent(eventName, payload);
+    }
 }
