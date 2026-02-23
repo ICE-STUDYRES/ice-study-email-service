@@ -9,6 +9,6 @@ public class WeeklyRankingDto {
 
     private int rank;
     private Long memberId; // Redis에 저장되는 사용자 식별자
-    private String memberName; // 화면 표시용
+    private String name; // 화면 표시용
     private int score;
 }
