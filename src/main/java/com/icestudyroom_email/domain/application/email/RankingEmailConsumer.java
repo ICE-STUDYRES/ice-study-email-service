@@ -1,10 +1,10 @@
 package com.icestudyroom_email.domain.application.email;
 
+import com.icestudyroom_email.domain.contract.ranking.RankingChangedEvent;
 import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailService;
 import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailRequest;
 import com.icestudyroom_email.domain.infrastructure.redis.idempotency.RedisIdempotencyService;
 import com.icestudyroom_email.domain.infrastructure.email.template.RankingEmailTemplateResolver;
-import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -29,11 +29,11 @@ public class RankingEmailConsumer {
     private final RedisIdempotencyService idempotencyService;
 
     @KafkaListener(
-            topics = "RANKING_EMAIL_EVENT",
+            topics = "RANKING_USER_CHANGED_EVENT",
             groupId = "email-group",
-            containerFactory = "rankingKafkaListenerContainerFactory"
+            containerFactory = "rankingChangedKafkaListenerContainerFactory"
     )
-    public void consume(RankingEmailEvent event, Acknowledgment ack) {
+    public void consume(RankingChangedEvent event, Acknowledgment ack) {
 
         String checkDuplicatedkey = "email:sent:" + event.eventId();
 

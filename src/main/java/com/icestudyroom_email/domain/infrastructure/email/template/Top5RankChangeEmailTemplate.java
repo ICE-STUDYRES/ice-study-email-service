@@ -1,7 +1,7 @@
 package com.icestudyroom_email.domain.infrastructure.email.template;
 
+import com.icestudyroom_email.domain.contract.ranking.RankingChangedEvent;
 import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailRequest;
-import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
 import com.icestudyroom_email.domain.contract.ranking.RankingEventType;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ public class Top5RankChangeEmailTemplate implements RankingEmailTemplate{
     public RankingEventType supports() { return RankingEventType.TOP5_RANK_CHANGED; }
 
     @Override
-    public EmailRequest create(RankingEmailEvent event) {
+    public EmailRequest create(RankingChangedEvent event) {
 
         boolean isUp = event.previousRank() != null
                 && event.currentRank() < event.previousRank();

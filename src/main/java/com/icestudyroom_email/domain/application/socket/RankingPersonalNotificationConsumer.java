@@ -1,7 +1,7 @@
 package com.icestudyroom_email.domain.application.socket;
 
+import com.icestudyroom_email.domain.contract.ranking.RankingChangedEvent;
 import com.icestudyroom_email.domain.infrastructure.redis.idempotency.RedisIdempotencyService;
-import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
 import com.icestudyroom_email.domain.infrastructure.socket.broadcaster.PersonalNotificationBroadcaster;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +32,11 @@ public class RankingPersonalNotificationConsumer {
     }
 
     @KafkaListener(
-            topics = "RANKING_EMAIL_EVENT",
+            topics = "RANKING_USER_CHANGED_EVENT",
             groupId = "personal-notification-group",
-            containerFactory = "rankingKafkaListenerContainerFactory"
+            containerFactory = "rankingChangedKafkaListenerContainerFactory"
     )
-    public void consume(RankingEmailEvent event, Acknowledgment ack) {
+    public void consume(RankingChangedEvent event, Acknowledgment ack) {
 
         String idempotencyKey = String.format(
                 "notify:personal:%d",

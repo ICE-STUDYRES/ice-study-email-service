@@ -1,6 +1,7 @@
 package com.icestudyroom_email.domain.rankingContract.forTest;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,19 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/infra-test/email")
+@Profile("local")
 public class RankingEmailInfraTestController {
 
-    private final RankingEventTestPublisher publisher;
+    private final RankingEventTestPublisher userPublisher;
+    private final RankingListUpdatedTestPublisher listPublisher;
 
-    @PostMapping("/top5")
+    @PostMapping("/user/top5")
     public void triggerTop5() {
-        publisher.publishTop5EnterEvent();
+        userPublisher.publish();
     }
 
-    @PostMapping("/personal/{memberId}")
-    public void triggerPersonalNotification(
-            @PathVariable Long memberId
-    ) {
-        publisher.publishPersonalNotificationEvent(memberId);
+    @PostMapping("/list/update")
+    public void triggerListUpdate() {
+        listPublisher.publish();
     }
 }

@@ -29,11 +29,11 @@ public class TestController {
 
     private List<WeeklyRankingDto> mockWeeklyRanking() {
         return List.of(
-                new WeeklyRankingDto(1, 1001L, "박*영", 150),
-                new WeeklyRankingDto(2, 1002L, "김*준", 120),
-                new WeeklyRankingDto(3, 1003L, "임*연", 95),
-                new WeeklyRankingDto(4, 1004L, "김*희", 80),
-                new WeeklyRankingDto(5, 1005L, "장*연", 70)
+                new WeeklyRankingDto(1, "박*영", 150),
+                new WeeklyRankingDto(2, "김*준", 120),
+                new WeeklyRankingDto(3, "임*연", 95),
+                new WeeklyRankingDto(4, "김*희", 80),
+                new WeeklyRankingDto(5, "장*연", 70)
         );
     }
 }

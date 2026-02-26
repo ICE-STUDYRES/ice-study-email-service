@@ -1,6 +1,6 @@
 package com.icestudyroom_email.domain.infrastructure.kafka.config;
 
-import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
+import com.icestudyroom_email.domain.contract.ranking.RankingChangedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -19,33 +19,34 @@ import java.util.Map;
         havingValue = "true",
         matchIfMissing = false
 )
-public class KafkaRankingEmailConsumerConfig {
+public class KafkaRankingChangedConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, RankingEmailEvent> rankingConsumerFactory
-            (KafkaProperties kafkaProperties) {
+    public ConsumerFactory<String, RankingChangedEvent> rankingChangedConsumerFactory(
+            KafkaProperties kafkaProperties) {
 
         Map<String, Object> props = kafkaProperties.buildConsumerProperties(null);
 
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, RankingEmailEvent.class.getName());
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, RankingChangedEvent.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
 
-            return new DefaultKafkaConsumerFactory<>(props);
+        return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, RankingEmailEvent> rankingKafkaListenerContainerFactory(
-            ConsumerFactory<String, RankingEmailEvent> rankingConsumerFactory) {
+    public ConcurrentKafkaListenerContainerFactory<String, RankingChangedEvent>
+    rankingChangedKafkaListenerContainerFactory(
+            ConsumerFactory<String, RankingChangedEvent> factory) {
 
-        ConcurrentKafkaListenerContainerFactory<String, RankingEmailEvent> factory =
+        ConcurrentKafkaListenerContainerFactory<String, RankingChangedEvent> containerFactory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(rankingConsumerFactory);
-        factory.getContainerProperties()
+        containerFactory.setConsumerFactory(factory);
+        containerFactory.getContainerProperties()
                 .setAckMode(ContainerProperties.AckMode.MANUAL);
 
-        return factory;
+        return containerFactory;
     }
 }
