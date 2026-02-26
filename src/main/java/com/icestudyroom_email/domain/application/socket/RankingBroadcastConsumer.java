@@ -1,7 +1,6 @@
 package com.icestudyroom_email.domain.application.socket;
 
-import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
-import com.icestudyroom_email.domain.contract.ranking.RankingEventType;
+import com.icestudyroom_email.domain.contract.ranking.RankingListUpdatedEvent;
 import com.icestudyroom_email.domain.infrastructure.socket.broadcaster.SocketRankingBroadcaster;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -29,25 +28,20 @@ public class RankingBroadcastConsumer {
     }
 
     @KafkaListener(
-            topics = "RANKING_EMAIL_EVENT",
+            topics = "RANKING_LIST_UPDATED_EVENT",
             groupId = "ranking-broadcast-group",
-            containerFactory = "rankingKafkaListenerContainerFactory"
+            containerFactory = "rankingListKafkaListenerContainerFactory"
     )
-    public void consume(RankingEmailEvent event, Acknowledgment ack) {
+    public void consume(RankingListUpdatedEvent event, Acknowledgment ack) {
 
         try {
-            if (event.eventType() == RankingEventType.TOP5_RANK_CHANGED) {
+            log.info("[RankingBroadcast] broadcasting ranking list. periodKey={}",
+                    event.periodKey());
 
-                log.info(
-                        "[RankingBroadcast] TOP5 changed. broadcasting. memberId={}",
-                        event.memberId()
-                );
-
-                SocketRankingBroadcaster.broadcastToAll(
-                        "ranking-update",
-                        event
-                );
-            }
+            SocketRankingBroadcaster.broadcastToAll(
+                    "ranking-update",
+                    event.rankingList()
+            );
 
         } catch (Exception e) {
             log.error("[RankingBroadcast] error", e);
