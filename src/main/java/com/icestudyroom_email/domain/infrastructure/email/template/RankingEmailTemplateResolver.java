@@ -1,7 +1,7 @@
 package com.icestudyroom_email.domain.infrastructure.email.template;
 
+import com.icestudyroom_email.domain.contract.ranking.RankingChangedEvent;
 import com.icestudyroom_email.domain.infrastructure.email.gmail.EmailRequest;
-import com.icestudyroom_email.domain.contract.ranking.RankingEmailEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ public class RankingEmailTemplateResolver {
 
     private final List<RankingEmailTemplate> templates;
 
-    public EmailRequest resolve(RankingEmailEvent event) {
+    public EmailRequest resolve(RankingChangedEvent event) {
         return templates.stream()
                 .filter(t -> t.supports() == event.eventType())
                 .findFirst()
