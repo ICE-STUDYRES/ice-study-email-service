@@ -38,6 +38,8 @@ public class RankingBroadcastConsumer {
             log.info("[RankingBroadcast] broadcasting ranking list. periodKey={}",
                     event.periodKey());
 
+            log.info("rankingList = {}", event.rankingList()); // payload 정상 전달인지 확인
+
             SocketRankingBroadcaster.broadcastToAll(
                     "ranking-update",
                     event.rankingList()
